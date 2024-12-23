@@ -13,6 +13,9 @@ const SellerSchema = new mongoose.Schema({
   businessAddress: { type: String, required: true },
   businessType: { type: String, required: true },
   otp: { type: String },
+  emailVerified: { type: Boolean, default: false },
+  verificationToken: { type: String, default: null },
+
   loggedIn: { type: String, enum: ['loggedin', 'loggedout'], default: 'loggedout' }
 });
 

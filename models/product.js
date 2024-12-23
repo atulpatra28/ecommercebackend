@@ -2,13 +2,15 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
   name: String,
   price: String,
-  img: String,
+  img: [String],
   category: String,
   rating: Number,
   productId: { type: String, unique: true }, // Added productId field
   inStockValue: Number, // Available stock value
   soldStockValue: Number, // Number of items sold
-  visibility: { type: String, default: 'on' } // Visibility field with default 'on'
+  visibility: { type: String, default: 'on' } ,// Visibility field with default 'on'
+  description: { type: String, required: true } // Ensure description is required
+
 });
 
 const Product = mongoose.model('Product', productSchema);

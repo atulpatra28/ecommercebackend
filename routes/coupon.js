@@ -130,6 +130,19 @@ async function sendEmailToAllUsers(subject, message) {
           message: 'Coupon not found'
         });
       }
+
+router.post('/create-coupon', async (req, res) => {
+  const { code, discountPercentage } = req.body;
+  const coupon = new Coupon({ code, discountPercentage });
+  await coupon.save();
+  res.status(201).json({ success: true, message: 'Coupon created successfully' });
+});
+
+router.delete('/delete-coupon/:code', async (req, res) => {
+  const { code } = req.params;
+  await Coupon.findOneAndDelete({ code });
+  res.status(200).json({ success: true, message: 'Coupon deleted successfully' });
+});
   
       // Send email to all users about expired coupon
       const subject = 'Coupon Expired';

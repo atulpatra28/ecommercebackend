@@ -14,8 +14,46 @@ const complaintsRoutes = require('./routes/complaints');
 const couponRoutes = require('./routes/coupon')
 const Product = require('./models/product');
 const crypto = require('crypto');
-require('dotenv').config();
+const adminSellerManagementRoutes = require('./routes/adminSellerManagement');
+app.use('/admin', adminSellerManagementRoutes);
 
+
+const multer = require('multer');
+require('dotenv').config();
+// Set up multer for image uploads
+
+const isAdmin = (req, res, next) => {
+  if (req.session.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  next();
+};
+
+// Protect admin routes
+app.use('/admin', isAdmin, adminSellerManagementRoutes);
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Specify the upload directory
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname); // Unique filename
+  }
+});
+
+
+// In seller routes (e.g., seller.js)
+router.post('/add-product', upload.array('images', 5), async (req, res) => {
+  // Logic to add a product
+});
+
+router.delete('/remove-product/:productId', async (req, res) => {
+  const { productId } = req.params;
+  // Logic to remove the product
+});
+
+const upload = multer({ storage: storage });
 const app = express();
 
 // Middleware
@@ -46,6 +84,8 @@ app.use(
     },
   })
 );
+
+
 
 // Routes
 app.use('/auth', authRoutes);
@@ -112,9 +152,11 @@ app.post('/product/category', async (req, res) => {
 
 
 // Create Product Route
-app.post('/create-product', async (req, res) => {
+// Create Product Route with image upload
+app.post('/create-product', upload.array('images', 5), async (req, res) => {
   try {
     const productData = req.body;
+    productData.img = req.files.map(file => file.path); // Store image paths
     const product = new Product(productData);
     const result = await product.save();
     

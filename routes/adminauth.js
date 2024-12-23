@@ -118,6 +118,13 @@ router.post('/seller/signup', async (req, res) => {
   }
 });
 
+router.use((req, res, next) => {
+  if (req.session.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  next();
+});
+
 router.post('/verify-seller', async (req, res) => {
   try {
     const { sellerId } = req.body;
