@@ -10,6 +10,10 @@ const couponSchema = new mongoose.Schema({
   discountPercentage: {
     type: Number,
     required: true
+  },
+  isFreeDelivery: { 
+    type: Boolean,
+    default: false
   }
 });
 

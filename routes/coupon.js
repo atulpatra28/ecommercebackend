@@ -59,11 +59,12 @@ async function sendEmailToAllUsers(subject, message) {
   // Save coupon route
   router.post('/save-coupon', async (req, res) => {
     try {
-      const { code, discountPercentage } = req.body;
+      const { code, discountPercentage, isFreeDelivery } = req.body;
   
       const coupon = new Coupon({
         code,
-        discountPercentage
+        discountPercentage,
+        isFreeDelivery
       });
   
       await coupon.save();

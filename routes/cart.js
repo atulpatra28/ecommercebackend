@@ -115,19 +115,28 @@ router.post('/delete-items', async (req, res) => {
 // Route to update quantity
 
 // Place Order Route
+// Place Order Route
 router.post('/place-order', async (req, res) => {
   try {
     const { userId, date, time, address, price, productsOrdered } = req.body;
+
+    // Check if the order total is above ₹499
+    const orderTotal = price; // assuming price is the total amount
+    let discount = 0;
+    let freeDelivery = false;
+
+    if (orderTotal > 499) {
+      discount = 10; // 10% discount
+      freeDelivery = true; // Free delivery
+    }
 
     const orderId = Math.floor(100000 + Math.random() * 900000).toString();
     const trackingId = Math.random().toString(36).substring(2, 14).toUpperCase();
 
     const user = await User.findById(userId);
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error('User  not found');
 
     const productIds = productsOrdered.map(item => item.productId);
-
-    const productDetails = await Product.find({ productId: { $in: productIds } });
 
     const order = new Order({
       userId,
@@ -139,7 +148,7 @@ router.post('/place-order', async (req, res) => {
       name: user.name,
       productIds,
       trackingId,
-      price
+      price: orderTotal - (orderTotal * (discount / 100)) // Apply discount
     });
 
     await order.save();
@@ -147,7 +156,7 @@ router.post('/place-order', async (req, res) => {
     const emailHtml = `<div>Order Confirmation for ${user.name}...</div>`; // Simplified for brevity
     await transporter.sendMail({ from: `pecommerce8@gmail.com`, to: user.email, subject: 'Order Confirmation', html: emailHtml });
 
-    res.status(200).json({ success: true, message: 'Order placed successfully', orderId, trackingId });
+    res.status(200).json({ success: true, message: 'Order placed successfully', orderId, trackingId, freeDelivery, discount });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error placing order', error: error.message });
   }
